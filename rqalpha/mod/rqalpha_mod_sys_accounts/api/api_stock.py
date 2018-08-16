@@ -304,7 +304,7 @@ def order_percent(id_or_ins, percent, price=None, style=None):
     # 测试能否拉取 rqalpha_mod_sys_simulation 的配置参数
     print('test-1', Environment.get_instance().broker._mod_config)
     
-    commission_decider = enviroment.get_instance().broker._matcher._commission_decider.deciders[DEFAULT_ACCOUNT_TYPE.STOCK.name]
+    commission_decider = Enviroment.get_instance().broker._matcher._commission_decider.deciders[DEFAULT_ACCOUNT_TYPE.STOCK.name]
     
     print('test-2', '基础佣金{}, 佣金乘数{}, 最低佣金{}'.format(
         commission_decider.rate, commission_decider.multiplier, commission_decider.min_commission))
