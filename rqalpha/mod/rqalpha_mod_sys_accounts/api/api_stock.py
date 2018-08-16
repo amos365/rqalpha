@@ -301,6 +301,8 @@ def order_percent(id_or_ins, percent, price=None, style=None):
     # 全仓买入时，percent修改为0.999，防止手续费不足的问题
     if percent > 0.999:
         percent = 0.999
+    # 测试能否拉取 rqalpha_mod_sys_simulation 的配置参数
+    print('test', Environment.get_instance().broker._mod_config)
 
     style = cal_style(price, style)
     account = Environment.get_instance().portfolio.accounts[DEFAULT_ACCOUNT_TYPE.STOCK.name]
