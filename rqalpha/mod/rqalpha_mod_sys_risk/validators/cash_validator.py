@@ -35,6 +35,7 @@ class CashValidator(AbstractFrontendValidator):
         commission_decider = self._env.get_instance().broker._matcher._commission_decider.deciders[account.type]
         commission_rate = commission_decider.rate * commission_decider.multiplier
         
+        print('真实佣金率:', commission_rate, '最低佣金:', commission_decider.min_commission)
         frozen_value = order.frozen_price * order.quantity
         if frozen_value * commission_rate > commission_decider.min_commission:
             cost_money = frozen_value * (1 + commission_rate)
