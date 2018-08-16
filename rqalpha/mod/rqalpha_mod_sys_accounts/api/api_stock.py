@@ -250,9 +250,20 @@ def order_value(id_or_ins, cash_amount, price=None, style=None):
 
     if cash_amount > 0:
         cash_amount = min(cash_amount, account.cash)
+        
+        commission_decider = env.broker._matcher._commission_decider.deciders[DEFAULT_ACCOUNT_TYPE.STOCK.name]
+        commission = max(cash_amount * commission_decider.rate * commission_decider.multiplier, commission_decider.min_commission)
+        if (cash_amount + commission) > account.cash:
+            print('(cash_amount + commission) > account.cash')
+            cash_amount = account.cash - commission
 
     if isinstance(style, MarketOrder):
-        amount = int(Decimal(cash_amount) / Decimal(price))
+        slippage_decider = env.broker._matcher._slippage_decider.decider
+        slippage_rate = slippage_decider.rate
+        if cash_amount > 0:
+            amount = int(Decimal(cash_amount) / Decimal(price * (1 + slippage_rate)))
+        else:
+            amount = int(Decimal(cash_amount) / Decimal(price * (1 - slippage_rate)))
     else:
         amount = int(Decimal(cash_amount) / Decimal(style.get_limit_price()))
 
@@ -298,16 +309,6 @@ def order_percent(id_or_ins, percent, price=None, style=None):
     """
     if percent < -1 or percent > 1:
         raise RQInvalidArgument(_(u"percent should between -1 and 1"))
-    # 全仓买入时，percent修改为0.999，防止手续费不足的问题
-    if percent > 0.999:
-        percent = 0.999
-    # 测试能否拉取 rqalpha_mod_sys_simulation 的配置参数
-    print('test-1', Environment.get_instance().broker._mod_config)
-    
-    commission_decider = Environment.get_instance().broker._matcher._commission_decider.deciders[DEFAULT_ACCOUNT_TYPE.STOCK.name]
-    
-    print('test-2', '基础佣金{}, 佣金乘数{}, 最低佣金{}'.format(
-        commission_decider.rate, commission_decider.multiplier, commission_decider.min_commission))
 
     style = cal_style(price, style)
     account = Environment.get_instance().portfolio.accounts[DEFAULT_ACCOUNT_TYPE.STOCK.name]
