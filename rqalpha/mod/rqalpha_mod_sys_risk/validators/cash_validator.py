@@ -29,18 +29,15 @@ class CashValidator(AbstractFrontendValidator):
         if order.side == SIDE.SELL:
             return True
         # 检查可用资金是否充足
-        # to_remove: 保证占用资金包含了佣金部分, 在这里假定最小手续费就是5块, 佣金费率为万3。
-        # to_remove: 没有区分不同柜台标准, 也没有根据回测中 mod_config 设置的佣金倍率进行改动, dirty hack
-        
         commission_decider = self._env.get_instance().broker._matcher._commission_decider.deciders[account.type]
         commission_rate = commission_decider.rate * commission_decider.multiplier
-        
-        print('真实佣金率:', commission_rate, '最低佣金:', commission_decider.min_commission)
+        min_commission = commission_decider.min_commission
+
         frozen_value = order.frozen_price * order.quantity
-        if frozen_value * commission_rate > commission_decider.min_commission:
+        if frozen_value * commission_rate > min_commission:
             cost_money = frozen_value * (1 + commission_rate)
         else:
-            cost_money = frozen_value + commission_decider.min_commission
+            cost_money = frozen_value + min_commission
 
         if cost_money <= account.cash:
             return True
