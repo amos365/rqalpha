@@ -249,13 +249,10 @@ def order_value(id_or_ins, cash_amount, price=None, style=None):
     account = env.portfolio.accounts[DEFAULT_ACCOUNT_TYPE.STOCK.name]
 
     if cash_amount > 0:
-        cash_amount = min(cash_amount, account.cash)
-        
         commission_decider = env.broker._matcher._commission_decider.deciders[DEFAULT_ACCOUNT_TYPE.STOCK.name]
-        commission = max(cash_amount * commission_decider.rate * commission_decider.multiplier, commission_decider.min_commission)
-        if (cash_amount + commission) > account.cash:
-            print('(cash_amount + commission) > account.cash')
-            cash_amount = account.cash - commission
+        commission_rate = commission_decider.rate * commission_decider.multiplier
+        min_commission = commission_decider.min_commission
+        cash_amount = min(cash_amount, account.cash / (1 + commission_rate), account.cash - min_commission)
 
     if isinstance(style, MarketOrder):
         slippage_decider = env.broker._matcher._slippage_decider.decider
