@@ -34,14 +34,17 @@ class StockTax(BaseTax):
             print('rate is None, set default tax rate to 0.001')
         else:
             self.rate = rate
+        print('印花税:', self.rate)
 
     def get_tax(self, trade):
         cost_money = trade.last_price * trade.last_quantity
-        if Environment.get_instance().get_instrument(trade.order_book_id).type == 'CS':
-            test = cost_money * self.rate if trade.side == SIDE.SELL else 0
-            return test
-        else:
-            return 0
+        test = cost_money * self.rate if trade.side == SIDE.SELL else 0
+        return test
+#         if Environment.get_instance().get_instrument(trade.order_book_id).type == 'CS':
+#             test = cost_money * self.rate if trade.side == SIDE.SELL else 0
+#             return test
+#         else:
+#             return 0
 
 
 class FutureTax(BaseTax):
