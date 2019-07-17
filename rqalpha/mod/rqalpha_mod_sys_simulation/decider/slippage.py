@@ -35,6 +35,7 @@ class PriceRatioSlippage(BaseSlippage):
         # Rate必须在0~1之间
         if 0 <= rate < 1:
             self.rate = rate
+            print('单向滑点为百分比滑点:', self.rate)
         else:
             raise patch_user_exc(ValueError(_(u"invalid slippage rate value: value range is [0, 1)")))
 
